@@ -49,3 +49,12 @@ async def set_collected_money(number: int, value: int):
         cur = await conn.cursor()
         await cur.execute("UPDATE fundraisers SET collected = ? WHERE index_ = ?", (value, index_))
         await conn.commit()
+        
+async def get_fund_data(number: int=None, index_: int=None):
+    if index_ is None:
+        index_ = await get_index(number)
+    async with connect('database/fundraisers.sql') as conn:
+        cur = await conn.cursor()
+        await cur.execute("SELECT * FROM fundraisers WHERE index_ = ?", (index_,))
+        result = await cur.fetchall()
+        return result[0]

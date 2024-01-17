@@ -10,3 +10,7 @@ class FSMClient(StatesGroup):
     
     set_money_num = State()
     set_money_value = State()
+    
+    view_desc = State()
+    
+    open_fund = State()

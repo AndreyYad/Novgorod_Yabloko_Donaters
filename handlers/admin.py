@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from modules.text import text
 from modules.bot_commands import send_msg
 from modules.states import FSMClient
-from modules.database import save_fundraiser, get_fundraisers, delete_fundraiser, set_collected_money
+from modules.database import save_fundraiser, get_fundraisers, delete_fundraiser, set_collected_money, get_fund_data
 from modules.send_msg_template import send_red_fund
 
 router = Router()
@@ -60,6 +60,17 @@ async def set_money_value_func(msg: types.Message, state: FSMContext):
         await state.clear()
         await send_msg(msg.chat.id, text.set_money_succes)
         await send_red_fund(msg.chat.id)
+        
+async def view_desc_num_func(msg: types.Message, state: FSMContext):
+    if not msg.text.isdigit():
+        await send_msg(msg.chat.id, text.warning_not_number)
+    elif int(msg.text) not in range(1, len(await get_fundraisers())+1):
+        await send_msg(msg.chat.id, text.warning_fund_not_found)
+    else:
+        await state.clear()
+        fund = await get_fund_data(int(msg.text))
+        print(fund)
+        await send_msg(msg.chat.id, text.view_desc_res.format(fund[1], fund[2]))
 
 async def register_admin_handlers():
     router.message.register(add_fund_handline_func, F.text, StateFilter(FSMClient.add_fund_handline))
@@ -68,3 +79,4 @@ async def register_admin_handlers():
     router.message.register(delete_fund_func, F.text, StateFilter(FSMClient.delete_fund))
     router.message.register(set_money_num_func, F.text, StateFilter(FSMClient.set_money_num))
     router.message.register(set_money_value_func, F.text, StateFilter(FSMClient.set_money_value))
+    router.message.register(view_desc_num_func, F.text, StateFilter(FSMClient.view_desc))
