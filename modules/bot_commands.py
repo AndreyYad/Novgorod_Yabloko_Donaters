@@ -6,6 +6,7 @@ from loguru import logger
 from aiogram import types, exceptions
 
 from bot.bot import bot
+from .config import TOKEN
 
 empty_markups = types.InlineKeyboardMarkup(inline_keyboard=[[]])
 
@@ -48,3 +49,14 @@ async def edit_msg_any(text: str, chat_id: int, msg_id: int, markup: types.Inlin
 async def delete_msg(chat_id: int, msg_id: int):
     '''Удаление сообщения'''
     await bot.delete_message(chat_id, msg_id)
+    
+async def get_inputfile(file_id: str):
+    '''Получение файла по его айди'''
+    return types.input_file.URLInputFile(
+        'https://api.telegram.org/file/bot{}/{}'.format(
+            TOKEN, 
+            (await bot.get_file(file_id)).file_path
+        )
+    )
+    
+# async def get_file_url()

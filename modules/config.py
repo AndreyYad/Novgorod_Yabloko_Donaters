@@ -5,3 +5,4 @@ with open('config.json') as file:
     
 TOKEN = config.get('token')
 ADMINS = config.get('admins')
+VK_TOKEN = config.get('vk_token')

@@ -6,7 +6,7 @@ async def get_text_list_fundraiser(money: bool=True):
     if list_fundraiser is None:
         result = 'Сборов нет!'
     else:
-        result = ''.join([f'{i+1}. {list_fundraiser[i][1]}' + money * f' ({await get_beauty_num(list_fundraiser[i][4])} ₽ / {await get_beauty_num(list_fundraiser[i][3])} ₽)\n' for i in range(len(list_fundraiser))])
+        result = ''.join([f'{i+1}. {list_fundraiser[i][1]}\n' + money * f' ({await get_beauty_num(list_fundraiser[i][4])} ₽ / {await get_beauty_num(list_fundraiser[i][3])} ₽)\n' for i in range(len(list_fundraiser))])
     
     return result
 

@@ -14,3 +14,12 @@ class FSMClient(StatesGroup):
     view_desc = State()
     
     open_fund = State()
+    
+    enter_fio = State()
+    enter_phone = State()
+    enter_region = State()
+    enter_summ = State()
+    
+    number_enter = State()
+    
+    confirm_enter_data = State()
