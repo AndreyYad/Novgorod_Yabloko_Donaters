@@ -3,13 +3,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 # from aiogram.utils.callback_answer import CallbackAnswer
 
-from modules.bot_commands import edit_msg_text
+from modules.bot_commands import edit_msg_text, delete_msg, send_msg
 from modules.text import text
 from modules.states import FSMClient
 from modules.send_msg_template import send_red_fund
 from modules.get_text import get_text_list_fundraiser
 from modules.database import get_fundraisers, get_fund_data, save_donate
-from modules.markups import markup_how_help_back, markup_fund_menu
+from modules.markups import markup_how_help_back, markup_fund_menu, markup_enter_data_succes
 
 router = Router()
 
@@ -61,20 +61,26 @@ async def view_desc_func(call: CallbackQuery, state: FSMContext):
         
 async def how_help_func(call: CallbackQuery):
     number = int(call.data[:call.data.index('_')])
-    await edit_msg_text(
-        text.how_help, 
+    await delete_msg(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await send_msg(
         call.message.chat.id, 
-        call.message.message_id, 
+        text.how_help, 
         markup=await markup_how_help_back(number)
     )
     
 async def how_help_back_func(call: CallbackQuery):
     number = int(call.data[:call.data.index('_')])
     fund = await get_fund_data(number)
-    await edit_msg_text(
-        text.fund_info.format(fund[1], fund[2]),
+    await delete_msg(
+        call.message.chat.id,
+        call.message.message_id
+    )
+    await send_msg(
         call.message.chat.id, 
-        call.message.message_id,
+        text.fund_info.format(fund[1], fund[2]),
         markup=await markup_fund_menu(number)
     )
     
@@ -82,10 +88,13 @@ async def start_enter_data(call: CallbackQuery, state: FSMContext):
     number = int(call.data[:call.data.index('_')])
     await state.set_state(FSMClient.enter_fio)
     await state.update_data(number_enter=number)
-    await edit_msg_text(
-        await text.enter_info_text(number, 1),
+    await delete_msg(
         call.message.chat.id,
         call.message.message_id
+    )
+    await send_msg(
+        call.message.chat.id,
+        await text.enter_info_text(number, 1)
     )
     
 async def rewrite_enter_data(call: CallbackQuery, state: FSMContext):
@@ -112,6 +121,14 @@ async def confirm_enter_data(call: CallbackQuery, state: FSMContext):
     await edit_msg_text(
         text.succes_enter_data,
         call.message.chat.id,
+        call.message.message_id,
+        markup=await markup_enter_data_succes()
+    )
+
+async def how_help_2_func(call: CallbackQuery):
+    await edit_msg_text(
+        text.how_help + '\n\nВернуться к списку сборов - /fundraisers',
+        call.message.chat.id,
         call.message.message_id
     )
                 
@@ -121,9 +138,10 @@ async def register_callbacks():
     router.callback_query.register(callback_delete_fundraisers, F.data == 'delete_fundraiser')
     router.callback_query.register(set_money_func, F.data == 'set_money')
     router.callback_query.register(view_desc_func, F.data == 'view_desc')
-    router.callback_query.register(how_help_func, F.data.regexp('\d+_how_help'))
-    router.callback_query.register(how_help_back_func, F.data.regexp('\d+_back'))
-    router.callback_query.register(start_enter_data, F.data.regexp('\d+_enter_info'))
+    router.callback_query.register(how_help_func, F.data.regexp(r'\d+_how_help'))
+    router.callback_query.register(how_help_back_func, F.data.regexp(r'\d+_back'))
+    router.callback_query.register(start_enter_data, F.data.regexp(r'\d+_enter_info'))
     router.callback_query.register(rewrite_enter_data, F.data == 'rewrite_enter')
     router.callback_query.register(cancel_enter_data, F.data == 'cancel_enter')
     router.callback_query.register(confirm_enter_data, F.data == 'confirm_enter')
+    router.callback_query.register(how_help_2_func, F.data == 'how_help_2')

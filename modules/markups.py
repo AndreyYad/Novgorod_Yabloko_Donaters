@@ -33,6 +33,13 @@ async def markup_fund_menu(number: int):
 
     return builder.as_markup()
 
+async def markup_enter_data_succes():
+    builder = InlineKeyboardBuilder()
+    
+    builder.add(InlineKeyboardButton(text='❓ Как это сделать?', callback_data='how_help_2'))
+
+    return builder.as_markup()
+
 async def markup_how_help_back(number: int):
     builder = InlineKeyboardBuilder()
     
@@ -44,7 +51,7 @@ async def markup_confirm_enter_data():
     builder = InlineKeyboardBuilder()
     
     builder.row(InlineKeyboardButton(text='✅ Всё верно', callback_data='confirm_enter'))
-    builder.row(InlineKeyboardButton(text='✍️ Ввести занова', callback_data='rewrite_enter'))
+    builder.row(InlineKeyboardButton(text='✍️ Ввести заново', callback_data='rewrite_enter'))
     builder.row(InlineKeyboardButton(text='❌ Отменить', callback_data='cancel_enter'))
 
     return builder.as_markup()

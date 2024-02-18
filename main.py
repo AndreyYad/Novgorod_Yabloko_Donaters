@@ -13,7 +13,6 @@ async def main():
     await create_database()
     await register_handlers()
     print('Бот запущен!')
-    await create_diagram(3000, 30000)
     await dp.start_polling(bot)
 
 if __name__ == '__main__':

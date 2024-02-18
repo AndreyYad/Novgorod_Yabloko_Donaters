@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from re import fullmatch
 
 from modules.text import text
-from modules.bot_commands import send_msg, reply_msg
+from modules.bot_commands import send_msg, reply_msg, send_msg_photo
 from modules.markups import markup_start, markup_fund_menu, markup_confirm_enter_data
 from modules.get_text import get_text_list_fundraiser
 from modules.states import FSMClient
@@ -38,12 +38,17 @@ async def fundraiser_menu_func(msg: types.Message, state: FSMContext):
     else:
         await state.clear()
         fund = await get_fund_data(int(msg.text))
-        url = await create_diagram(fund[4], fund[3])
-        await send_msg(
+        # await send_msg(
+        #     msg.chat.id, 
+        #     text.fund_info.format(fund[1], fund[2]).replace(' ', f'<a href="{url}"> </a>'), 
+        #     markup=await markup_fund_menu(int(msg.text)),
+        #     disable_web_page_preview=False
+        # )
+        await send_msg_photo(
             msg.chat.id, 
-            text.fund_info.format(fund[1], fund[2]).replace(' ', f'<a href="{url}"> </a>'), 
-            markup=await markup_fund_menu(int(msg.text)),
-            disable_web_page_preview=False
+            await create_diagram(fund[4], fund[3]),
+            text.fund_info.format(fund[1], fund[2]),
+            markup=await markup_fund_menu(fund[0])
         )
 
 async def get_enter_fio(msg: types.Message, state: FSMContext):
