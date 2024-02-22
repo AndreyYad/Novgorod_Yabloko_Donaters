@@ -22,7 +22,6 @@ async def start_func(msg: types.Message):
     )
     
 async def cancel_func(msg: types.Message, state: FSMContext):
-    print(await state.get_state())
     await state.clear()
     await reply_msg(msg, 'Сброс')
     
@@ -88,8 +87,14 @@ async def get_enter_region(msg: types.Message, state: FSMContext):
         await reply_msg(msg, text.warning_no_template)              
 
 async def get_enter_summ(msg: types.Message, state: FSMContext):
-    if fullmatch(r'\d+\Z', msg.text): 
-        number = (await state.get_data())['number_enter']
+    number = (await state.get_data())['number_enter']
+    fund = await get_fund_data(index_=number)
+    remains = fund[3] - fund[4]
+    if not(fullmatch(r'\d+\Z', msg.text) and int(msg.text) != 0):
+        await reply_msg(msg, text.warning_no_template)
+    elif int(msg.text) > remains:
+        await reply_msg(msg, text.warning_many_moneys.format('{:,}'.format(remains).replace(',', '\'')))
+    else: 
         await state.update_data(enter_summ=int(msg.text))
         data = await state.get_data()
         await send_msg(
@@ -98,8 +103,6 @@ async def get_enter_summ(msg: types.Message, state: FSMContext):
             markup=await markup_confirm_enter_data()
         )
         await state.set_state(FSMClient.confirm_enter_data)
-    else:
-        await reply_msg(msg, text.warning_no_template)
 
 async def register_generic_handlers():
     router.message.register(start_func, CommandStart(), StateFilter(default_state))

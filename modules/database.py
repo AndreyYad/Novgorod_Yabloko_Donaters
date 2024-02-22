@@ -24,7 +24,6 @@ async def get_fundraisers():
 async def save_fundraiser(data: dict[str, any]):
     async with connect('database/fundraisers.sql') as conn:
         cur = await conn.cursor()
-        print(data)
         await cur.execute(
             "INSERT INTO fundraisers (handlers, description_text, need_to_raise, collected) VALUES (?, ?, ?, 0)", 
             (
@@ -36,7 +35,6 @@ async def save_fundraiser(data: dict[str, any]):
         await conn.commit()
         
 async def get_index(number: int):
-    print(number)
     return [fund[0] for fund in await get_fundraisers()][number-1]
         
 async def delete_fundraiser(number: int):
@@ -57,7 +55,6 @@ async def set_collected_money(number: int, value: int):
 async def get_fund_data(number: int=None, index_: int=None):
     if index_ is None:
         index_ = await get_index(number)
-    print(number, index_)
     async with connect('database/fundraisers.sql') as conn:
         cur = await conn.cursor()
         await cur.execute("SELECT * FROM fundraisers WHERE index_ = ?", (index_,))
