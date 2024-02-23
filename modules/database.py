@@ -59,7 +59,10 @@ async def get_fund_data(number: int=None, index_: int=None):
         cur = await conn.cursor()
         await cur.execute("SELECT * FROM fundraisers WHERE index_ = ?", (index_,))
         result = await cur.fetchall()
-        return result[0]
+        try:
+            return result[0]
+        except IndexError:
+            return None
     
 async def save_donate(fundriser_index: str, data: dict, user_id: int):
     async with connect('database/fundraisers.sql') as conn:
@@ -76,3 +79,20 @@ async def save_donate(fundriser_index: str, data: dict, user_id: int):
         )
         await cur.execute("UPDATE fundraisers SET collected = collected + ? WHERE index_ = ?", (data['enter_summ'], fundriser_index))
         await conn.commit()
+
+async def delete_donate(index_: int, minus_in_fund: bool=False):
+    async with connect('database/fundraisers.sql') as conn:
+        cur = await conn.cursor()
+        await cur.execute("SELECT summ FROM donations WHERE index_ = ?", (index_,))
+        summ = (await cur.fetchall())[0][0]
+        await cur.execute("DELETE FROM donations WHERE index_ = ?", (index_,))
+        if minus_in_fund:
+            await cur.execute("UPDATE fundraisers SET collected = collected - ? WHERE index_ = ?", (summ, index_))
+        await conn.commit()
+
+async def get_donates():
+    async with connect('database/fundraisers.sql') as conn:
+        cur = await conn.cursor()
+        await cur.execute("SELECT * FROM donations")
+        # await cur.execute("select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'donations'")
+        return await cur.fetchall()
